@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simpidlog"
+version = "0.0.1"
+authors = [
+  { name="Simpidbit Isaiah", email="simpidbit@gmail.com" },
+]
+description = "A simple multithreading logger."
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "tqdm",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Simpidbit/simpidlog"
+
+[tool.setuptools.packages.find]
+where = ["src"]
