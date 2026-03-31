@@ -1,50 +1,44 @@
-[![English](https://img.shields.io/badge/English-README-0A7EA4)](README.md)
-[![简体中文](https://img.shields.io/badge/简体中文-README__zh--cn-2E8B57)](docs/README_zh-cn.md)
+# simpidlog-cpp
 
-# simpidlog
-
-`simpidlog` is a small Python logging helper that writes messages from a
-background thread into per-level log files while optionally printing colored
-messages to the console.
+`simpidlog-cpp` is a C++17 translation of the Python `simpidlog` library. It writes
+messages from a background worker thread into per-level log files while optionally
+printing colored output to the terminal.
 
 ## Features
 
 - asynchronous log writing through an internal queue
 - separate log files for `info`, `warning`, `error`, and `debug`
 - optional colored terminal output
-- simple API with no configuration objects
+- small function-based API similar to the Python version
 
-## Installation
-
-```bash
-pip install simpidlog
-```
-
-For local development:
+## Build
 
 ```bash
-pip install -e .
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
 ## Quick Start
 
-```python
-from simpidlog import debug, error, info, set_basedir, wait_for_log_io, warning
+```cpp
+#include "simpidlog.hpp"
 
-set_basedir(".")
+int main() {
+    simpidlog::set_basedir(".");
 
-info("training started")
-warning("learning rate looks high")
-error("dataset file is missing")
-debug("batch size = 32")
+    simpidlog::info("%s", "training started");
+    simpidlog::info("epoch=%d loss=%.4f", 7, 0.2513);
+    simpidlog::warning("%s", "learning rate looks high");
+    simpidlog::error("%s", "dataset file is missing");
+    simpidlog::debug("%s", "batch size = 32");
+    simpidlog::debug(true, "worker=%d queue=%zu", 2, std::size_t{4});
 
-wait_for_log_io()
+    simpidlog::wait_for_log_io();
+}
 ```
 
-You can still import the module itself with `from simpidlog import logger`, but
-the common logging helpers are now also re-exported at the package level.
-
-This creates a directory like `./logs/2026-03-24_12-34-56/` containing:
+This creates a directory like `./logs/2026-03-31_12-34-56/` containing:
 
 - `info.txt`
 - `warning.txt`
@@ -55,54 +49,40 @@ Each line is timestamped and prefixed with its log level.
 
 ## API
 
-### `set_basedir(basedir: str) -> None`
+- `void set_basedir(const std::string& basedir)`
+- `std::string get_basedir()`
+- `std::string info(const char* format, ...)`
+- `std::string info(bool output, const char* format, ...)`
+- `std::string warning(const char* format, ...)`
+- `std::string warning(bool output, const char* format, ...)`
+- `std::string error(const char* format, ...)`
+- `std::string error(bool output, const char* format, ...)`
+- `std::string debug(const char* format, ...)`
+- `std::string debug(bool output, const char* format, ...)`
+- `void wait_for_log_io()`
 
-Sets the root directory where the `logs/` folder will be created.
+These functions use `printf`-style formatting:
 
-### `get_basedir() -> str`
+- `simpidlog::info("epoch=%d loss=%.4f", epoch, loss)`
+- `simpidlog::warning(false, "retry in %d seconds", seconds)`
+- `simpidlog::error("missing file: %s", filename.c_str())`
+- `simpidlog::debug(true, "worker=%d queue=%zu", worker_id, queue_size)`
 
-Returns the current log base directory.
-
-### `info(msg: str, output: bool = True) -> None | str`
-
-Queues an info message. When `output=True`, the message is printed and written
-to `info.txt`. When `output=False`, it is still written to disk and the colored
-string is returned instead of being printed.
-
-### `warning(msg: str, output: bool = True) -> None | str`
-
-Queues a warning message and writes it to `warning.txt`.
-
-### `error(msg: str, output: bool = True) -> None | str`
-
-Queues an error message and writes it to `error.txt`.
-
-### `debug(msg: str, output: bool = False) -> None | str`
-
-Queues a debug message and writes it to `debug.txt`. Debug output is not printed
-by default.
-
-### `wait_for_log_io() -> None`
-
-Flushes queued messages and stops the background logging thread. Call this near
-program exit if you need to make sure every pending message has been written.
+When `output` is `false`, the formatted message is still queued for file output
+and the colored string is returned instead of being printed immediately.
 
 ## Color Helpers
 
-The `simpidlog.colorful` module also exposes string helpers:
+The `simpidlog/colorful.hpp` header exposes:
 
-- `color_print_str(s, ccode)`
-- `red_print_str(s)`
-- `green_print_str(s)`
-- `yellow_print_str(s)`
-- `blue_print_str(s)`
-
-These helpers return colored strings and do not print by themselves.
+- `simpidlog::colorful::color_print_str(s, ccode)`
+- `simpidlog::colorful::red_print_str(s)`
+- `simpidlog::colorful::green_print_str(s)`
+- `simpidlog::colorful::yellow_print_str(s)`
+- `simpidlog::colorful::blue_print_str(s)`
 
 ## Notes
 
-- log files are grouped by the timestamp of the worker start time
-- the background worker is started automatically when `simpidlog.logger` is
-  imported
-- after calling `wait_for_log_io()`, do not queue more messages in the
-  same process unless you add your own restart logic
+- log files are grouped by the worker start timestamp
+- the worker thread starts automatically on first library use
+- after calling `wait_for_log_io()`, further logging in the same process is not supported
