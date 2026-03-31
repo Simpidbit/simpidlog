@@ -1,5 +1,4 @@
-#include "simpidlog/colorful.hpp"
-#include "simpidlog/simpidlog.hpp"
+#include "simpidlog.hpp"
 
 #include <cassert>
 #include <chrono>

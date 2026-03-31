@@ -4,18 +4,16 @@ project(simpidlog_cpp VERSION 0.1.0 LANGUAGES CXX)
 
 include(CTest)
 
-add_library(simpidlog STATIC
-    src/simpidlog.cpp
-)
+add_library(simpidlog INTERFACE)
 
 add_library(simpidlog::simpidlog ALIAS simpidlog)
 
 target_include_directories(simpidlog
-    PUBLIC
+    INTERFACE
         ${PROJECT_SOURCE_DIR}/include
 )
 
-target_compile_features(simpidlog PUBLIC cxx_std_17)
+target_compile_features(simpidlog INTERFACE cxx_std_17)
 
 add_executable(simpidlog_example
     examples/basic.cpp

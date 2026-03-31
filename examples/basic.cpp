@@ -1,4 +1,4 @@
-#include "simpidlog/simpidlog.hpp"
+#include "simpidlog.hpp"
 
 int main() {
     simpidlog::set_basedir(".");

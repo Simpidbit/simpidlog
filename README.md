@@ -1,14 +1,15 @@
 # simpidlog-cpp
 
-`simpidlog-cpp` is a C++17 translation of the Python `simpidlog` library. It writes
-messages from a background worker thread into per-level log files while optionally
-printing colored output to the terminal.
+`simpidlog-cpp` is a single-header C++17 translation of the Python `simpidlog`
+library. It writes messages from a background worker thread into per-level log
+files while optionally printing colored output to the terminal.
 
 ## Features
 
 - asynchronous log writing through an internal queue
 - separate log files for `info`, `warning`, `error`, and `debug`
 - optional colored terminal output
+- single-header distribution via `simpidlog.hpp`
 - small function-based API similar to the Python version
 
 ## Build
@@ -73,7 +74,7 @@ and the colored string is returned instead of being printed immediately.
 
 ## Color Helpers
 
-The `simpidlog/colorful.hpp` header exposes:
+The `simpidlog.hpp` header exposes:
 
 - `simpidlog::colorful::color_print_str(s, ccode)`
 - `simpidlog::colorful::red_print_str(s)`
